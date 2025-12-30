@@ -33,7 +33,8 @@ export function createAgentTransport({
       });
 
       // Capture usage after stream completes (non-blocking)
-      result.totalUsage.then((usage) => {
+      // Use per-call usage (last step) for accurate context % display
+      result.usage.then((usage) => {
         onUsageUpdate?.(usage);
       });
 

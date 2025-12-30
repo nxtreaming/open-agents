@@ -25,6 +25,7 @@ type ChatState = {
   autoAcceptMode: AutoAcceptMode;
   workingDirectory?: string;
   usage: LanguageModelUsage;
+  sessionUsage: LanguageModelUsage;
   contextLimit: number;
 };
 
@@ -62,6 +63,36 @@ const DEFAULT_USAGE: LanguageModelUsage = {
   },
 };
 
+function accumulateUsage(
+  prev: LanguageModelUsage,
+  next: LanguageModelUsage,
+): LanguageModelUsage {
+  const add = (a?: number, b?: number) => {
+    if (a === undefined && b === undefined) return undefined;
+    return (a ?? 0) + (b ?? 0);
+  };
+
+  const prevIn = prev.inputTokenDetails ?? {};
+  const nextIn = next.inputTokenDetails ?? {};
+  const prevOut = prev.outputTokenDetails ?? {};
+  const nextOut = next.outputTokenDetails ?? {};
+
+  return {
+    inputTokens: add(prev.inputTokens, next.inputTokens),
+    outputTokens: add(prev.outputTokens, next.outputTokens),
+    totalTokens: add(prev.totalTokens, next.totalTokens),
+    inputTokenDetails: {
+      noCacheTokens: add(prevIn.noCacheTokens, nextIn.noCacheTokens),
+      cacheReadTokens: add(prevIn.cacheReadTokens, nextIn.cacheReadTokens),
+      cacheWriteTokens: add(prevIn.cacheWriteTokens, nextIn.cacheWriteTokens),
+    },
+    outputTokenDetails: {
+      textTokens: add(prevOut.textTokens, nextOut.textTokens),
+      reasoningTokens: add(prevOut.reasoningTokens, nextOut.reasoningTokens),
+    },
+  };
+}
+
 export function ChatProvider({
   children,
   agent,
@@ -71,11 +102,14 @@ export function ChatProvider({
 }: ChatProviderProps) {
   const [autoAcceptMode, setAutoAcceptMode] = useState<AutoAcceptMode>("edits");
   const [usage, setUsage] = useState<LanguageModelUsage>(DEFAULT_USAGE);
+  const [sessionUsage, setSessionUsage] =
+    useState<LanguageModelUsage>(DEFAULT_USAGE);
 
   const contextLimit = useMemo(() => getContextLimit(model ?? ""), [model]);
 
   const handleUsageUpdate = useCallback((newUsage: LanguageModelUsage) => {
     setUsage(newUsage);
+    setSessionUsage((prev) => accumulateUsage(prev, newUsage));
   }, []);
 
   const transport = useMemo(
@@ -104,9 +138,10 @@ export function ChatProvider({
       autoAcceptMode,
       workingDirectory,
       usage,
+      sessionUsage,
       contextLimit,
     }),
-    [model, autoAcceptMode, workingDirectory, usage, contextLimit],
+    [model, autoAcceptMode, workingDirectory, usage, sessionUsage, contextLimit],
   );
 
   const cycleAutoAcceptMode = () => {
