@@ -1,10 +1,11 @@
 import React from "react";
 import { render } from "ink";
-import type { ToolLoopAgent } from "ai";
 import { App } from "./app.js";
+import { ChatProvider } from "./chat-context.js";
 import type { TUIAgent, TUIOptions } from "./types.js";
 
 export type { TUIOptions, AutoAcceptMode } from "./types.js";
+export { useChatContext, ChatProvider } from "./chat-context.js";
 
 /**
  * Create a Claude Code-style TUI for any ToolLoopAgent.
@@ -26,10 +27,17 @@ export type { TUIOptions, AutoAcceptMode } from "./types.js";
  */
 export async function createTUI(
   agent: TUIAgent,
-  options: TUIOptions
+  options: TUIOptions,
 ): Promise<void> {
   const { waitUntilExit } = render(
-    <App agent={agent} options={options} />
+    <ChatProvider
+      agent={agent}
+      agentOptions={options.agentOptions}
+      model={options.header?.model}
+      workingDirectory={options.workingDirectory}
+    >
+      <App options={options} />
+    </ChatProvider>,
   );
 
   await waitUntilExit();
@@ -39,11 +47,17 @@ export async function createTUI(
  * Render the TUI without waiting for exit.
  * Useful for programmatic control.
  */
-export function renderTUI(
-  agent: TUIAgent,
-  options: TUIOptions
-) {
-  return render(<App agent={agent} options={options} />);
+export function renderTUI(agent: TUIAgent, options: TUIOptions) {
+  return render(
+    <ChatProvider
+      agent={agent}
+      agentOptions={options.agentOptions}
+      model={options.header?.model}
+      workingDirectory={options.workingDirectory}
+    >
+      <App options={options} />
+    </ChatProvider>,
+  );
 }
 
 // Re-export components for custom TUI composition

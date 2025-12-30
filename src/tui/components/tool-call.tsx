@@ -1,7 +1,9 @@
 import React, { useState, useEffect, type ReactNode } from "react";
 import { Box, Text, useInput } from "ink";
-import type { TUIAgentUIToolPart } from "../types";
-import { getToolName, type ChatAddToolApproveResponseFunction } from "ai";
+import { useChat } from "@ai-sdk/react";
+import { getToolName } from "ai";
+import { useChatContext } from "../chat-context.js";
+import type { TUIAgentUIToolPart } from "../types.js";
 
 type DiffLine = {
   type: "context" | "addition" | "removal" | "separator";
@@ -24,13 +26,11 @@ function ToolSpinner() {
   return <Text color="yellow">{SPINNER_FRAMES[frame]} </Text>;
 }
 
-function ApprovalButtons({
-  approvalId,
-  onApprovalResponse,
-}: {
-  approvalId: string;
-  onApprovalResponse: ChatAddToolApproveResponseFunction;
-}) {
+function ApprovalButtons({ approvalId }: { approvalId: string }) {
+  const { chat } = useChatContext();
+  const { addToolApprovalResponse } = useChat({
+    chat,
+  });
   const [selected, setSelected] = useState(0);
   const [isTypingReason, setIsTypingReason] = useState(false);
   const [reason, setReason] = useState("");
@@ -41,7 +41,11 @@ function ApprovalButtons({
         setIsTypingReason(false);
         setReason("");
       } else if (key.return && reason.trim()) {
-        onApprovalResponse({ id: approvalId, approved: false, reason: reason.trim() });
+        addToolApprovalResponse({
+          id: approvalId,
+          approved: false,
+          reason: reason.trim(),
+        });
       } else if (key.backspace || key.delete) {
         setReason((prev) => prev.slice(0, -1));
       } else if (input && !key.ctrl && !key.meta) {
@@ -51,7 +55,8 @@ function ApprovalButtons({
     }
 
     const goUp = key.upArrow || input === "k" || (key.ctrl && input === "p");
-    const goDown = key.downArrow || input === "j" || (key.ctrl && input === "n");
+    const goDown =
+      key.downArrow || input === "j" || (key.ctrl && input === "n");
     if (goUp) {
       setSelected((prev) => (prev === 0 ? 2 : prev - 1));
     }
@@ -60,9 +65,9 @@ function ApprovalButtons({
     }
     if (key.return) {
       if (selected === 0) {
-        onApprovalResponse({ id: approvalId, approved: true });
+        addToolApprovalResponse({ id: approvalId, approved: true });
       } else if (selected === 1) {
-        onApprovalResponse({ id: approvalId, approved: false });
+        addToolApprovalResponse({ id: approvalId, approved: false });
       } else if (selected === 2) {
         setIsTypingReason(true);
       }
@@ -96,7 +101,9 @@ function ApprovalButtons({
         </Box>
       )}
       <Box marginTop={1}>
-        <Text color="gray">{isTypingReason ? "Enter to submit, Esc to cancel" : "Esc to cancel"}</Text>
+        <Text color="gray">
+          {isTypingReason ? "Enter to submit, Esc to cancel" : "Esc to cancel"}
+        </Text>
       </Box>
     </Box>
   );
@@ -112,7 +119,6 @@ function ToolLayout({
   denialReason,
   approvalRequested,
   approvalId,
-  onApprovalResponse,
 }: {
   name: string;
   summary: string;
@@ -123,15 +129,27 @@ function ToolLayout({
   denialReason?: string;
   approvalRequested?: boolean;
   approvalId?: string;
-  onApprovalResponse?: ChatAddToolApproveResponseFunction;
 }) {
-  const dotColor = denied ? "red" : approvalRequested ? "yellow" : running ? "yellow" : error ? "red" : "green";
+  const dotColor = denied
+    ? "red"
+    : approvalRequested
+      ? "yellow"
+      : running
+        ? "yellow"
+        : error
+          ? "red"
+          : "green";
 
   return (
     <Box flexDirection="column" marginTop={1} marginBottom={1}>
       <Box>
         {running ? <ToolSpinner /> : <Text color={dotColor}>● </Text>}
-        <Text bold color={denied ? "red" : running || approvalRequested ? "yellow" : "white"}>
+        <Text
+          bold
+          color={
+            denied ? "red" : running || approvalRequested ? "yellow" : "white"
+          }
+        >
           {name}
         </Text>
         <Text color="gray">(</Text>
@@ -139,8 +157,8 @@ function ToolLayout({
         <Text color="gray">)</Text>
       </Box>
 
-      {approvalRequested && approvalId && onApprovalResponse && (
-        <ApprovalButtons approvalId={approvalId} onApprovalResponse={onApprovalResponse} />
+      {approvalRequested && approvalId && (
+        <ApprovalButtons approvalId={approvalId} />
       )}
 
       {output && (
@@ -153,7 +171,9 @@ function ToolLayout({
       {denied && (
         <Box paddingLeft={2}>
           <Text color="gray">└ </Text>
-          <Text color="red">Denied{denialReason ? `: ${denialReason}` : ""}</Text>
+          <Text color="red">
+            Denied{denialReason ? `: ${denialReason}` : ""}
+          </Text>
         </Box>
       )}
 
@@ -179,7 +199,6 @@ function FileChangeLayout({
   denialReason,
   approvalRequested,
   approvalId,
-  onApprovalResponse,
 }: {
   action: "Create" | "Update";
   filePath: string;
@@ -192,9 +211,16 @@ function FileChangeLayout({
   denialReason?: string;
   approvalRequested?: boolean;
   approvalId?: string;
-  onApprovalResponse?: ChatAddToolApproveResponseFunction;
 }) {
-  const dotColor = denied ? "red" : approvalRequested ? "yellow" : running ? "yellow" : error ? "red" : "green";
+  const dotColor = denied
+    ? "red"
+    : approvalRequested
+      ? "yellow"
+      : running
+        ? "yellow"
+        : error
+          ? "red"
+          : "green";
   const maxWidth = 80;
   const showDiff = approvalRequested || (!running && !error);
 
@@ -203,7 +229,12 @@ function FileChangeLayout({
       {/* Header: ● Update(src/tui/lib/markdown.ts) */}
       <Box>
         {running ? <ToolSpinner /> : <Text color={dotColor}>● </Text>}
-        <Text bold color={denied ? "red" : running || approvalRequested ? "yellow" : "white"}>
+        <Text
+          bold
+          color={
+            denied ? "red" : running || approvalRequested ? "yellow" : "white"
+          }
+        >
           {action}
         </Text>
         <Text color="gray">(</Text>
@@ -215,14 +246,16 @@ function FileChangeLayout({
       {showDiff && (
         <Box paddingLeft={2}>
           <Text color="gray">└ </Text>
-          <Text>
-            {action === "Create" ? "Created" : "Updated"}{" "}
-          </Text>
+          <Text>{action === "Create" ? "Created" : "Updated"} </Text>
           <Text bold>{filePath}</Text>
           <Text> with </Text>
-          <Text color="green">{additions} addition{additions !== 1 ? "s" : ""}</Text>
+          <Text color="green">
+            {additions} addition{additions !== 1 ? "s" : ""}
+          </Text>
           <Text> and </Text>
-          <Text color="red">{removals} removal{removals !== 1 ? "s" : ""}</Text>
+          <Text color="red">
+            {removals} removal{removals !== 1 ? "s" : ""}
+          </Text>
         </Box>
       )}
 
@@ -259,7 +292,7 @@ function FileChangeLayout({
                     </>
                   ) : (
                     <>
-                      <Text color="gray">  </Text>
+                      <Text color="gray"> </Text>
                       <Text>{line.content.slice(0, maxWidth)}</Text>
                     </>
                   )}
@@ -271,14 +304,16 @@ function FileChangeLayout({
       )}
 
       {/* Approval buttons */}
-      {approvalRequested && approvalId && onApprovalResponse && (
-        <ApprovalButtons approvalId={approvalId} onApprovalResponse={onApprovalResponse} />
+      {approvalRequested && approvalId && (
+        <ApprovalButtons approvalId={approvalId} />
       )}
 
       {denied && (
         <Box paddingLeft={2}>
           <Text color="gray">└ </Text>
-          <Text color="red">Denied{denialReason ? `: ${denialReason}` : ""}</Text>
+          <Text color="red">
+            Denied{denialReason ? `: ${denialReason}` : ""}
+          </Text>
         </Box>
       )}
 
@@ -292,7 +327,10 @@ function FileChangeLayout({
   );
 }
 
-function createWriteDiffLines(content: string, maxLines: number = 10): DiffLine[] {
+function createWriteDiffLines(
+  content: string,
+  maxLines: number = 10,
+): DiffLine[] {
   const contentLines = content.split("\n");
   const result: DiffLine[] = [];
 
@@ -329,7 +367,7 @@ function createEditDiffLines(
   oldString: string,
   newString: string,
   contextLines: number = 2,
-  maxLines: number = 15
+  maxLines: number = 15,
 ): { lines: DiffLine[]; additions: number; removals: number } {
   const oldLines = oldString.split("\n");
   const newLines = newString.split("\n");
@@ -374,20 +412,18 @@ function createEditDiffLines(
   return { lines: result, additions, removals };
 }
 
-export function ToolCall({
-  part,
-  onApprovalResponse,
-}: {
-  part: TUIAgentUIToolPart;
-  onApprovalResponse?: ChatAddToolApproveResponseFunction;
-}) {
+export function ToolCall({ part }: { part: TUIAgentUIToolPart }) {
   const running =
     part.state === "input-streaming" || part.state === "input-available";
   const approvalRequested = part.state === "approval-requested";
   const denied = part.state === "output-denied";
-  const denialReason = denied ? (part as { approval?: { reason?: string } }).approval?.reason : undefined;
+  const denialReason = denied
+    ? (part as { approval?: { reason?: string } }).approval?.reason
+    : undefined;
   const error = part.state === "output-error" ? part.errorText : undefined;
-  const approvalId = approvalRequested ? (part as { approval?: { id: string } }).approval?.id : undefined;
+  const approvalId = approvalRequested
+    ? (part as { approval?: { id: string } }).approval?.id
+    : undefined;
 
   switch (part.type) {
     case "tool-read": {
@@ -414,7 +450,7 @@ export function ToolCall({
       // Check for tool execution failure (success: false in output)
       const outputError =
         part.state === "output-available" && part.output?.success === false
-          ? part.output?.error ?? "Write failed"
+          ? (part.output?.error ?? "Write failed")
           : undefined;
 
       return (
@@ -430,7 +466,6 @@ export function ToolCall({
           denialReason={denialReason}
           approvalRequested={approvalRequested}
           approvalId={approvalId}
-          onApprovalResponse={onApprovalResponse}
         />
       );
     }
@@ -439,12 +474,15 @@ export function ToolCall({
       const filePath = part.input?.filePath ?? "...";
       const oldString = part.input?.oldString ?? "";
       const newString = part.input?.newString ?? "";
-      const { lines, additions, removals } = createEditDiffLines(oldString, newString);
+      const { lines, additions, removals } = createEditDiffLines(
+        oldString,
+        newString,
+      );
 
       // Check for tool execution failure (success: false in output)
       const outputError =
         part.state === "output-available" && part.output?.success === false
-          ? part.output?.error ?? "Edit failed"
+          ? (part.output?.error ?? "Edit failed")
           : undefined;
 
       return (
@@ -460,7 +498,6 @@ export function ToolCall({
           denialReason={denialReason}
           approvalRequested={approvalRequested}
           approvalId={approvalId}
-          onApprovalResponse={onApprovalResponse}
         />
       );
     }
@@ -521,7 +558,6 @@ export function ToolCall({
           denialReason={denialReason}
           approvalRequested={approvalRequested}
           approvalId={approvalId}
-          onApprovalResponse={onApprovalResponse}
         />
       );
     }
