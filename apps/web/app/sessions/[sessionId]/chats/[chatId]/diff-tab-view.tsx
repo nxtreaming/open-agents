@@ -117,6 +117,7 @@ export function DiffTabView() {
 
   // When in uncommitted scope and the focused file has no local changes,
   // auto-switch to the first file that does have uncommitted changes.
+  // If no uncommitted files exist, clear the focused file.
   useEffect(() => {
     if (diffScope !== "uncommitted" || !diff || !file) return;
     const hasLocalChanges =
@@ -128,6 +129,9 @@ export function DiffTabView() {
     );
     if (firstUncommitted) {
       setFocusedDiffFile(firstUncommitted.path);
+    } else {
+      // No uncommitted files at all — clear selection
+      setFocusedDiffFile(null);
     }
   }, [diffScope, diff, file, setFocusedDiffFile]);
 
@@ -144,24 +148,35 @@ export function DiffTabView() {
   const baseOptions =
     diffStyle === "split" ? splitDiffOptions : defaultDiffOptions;
 
-  // If there's no focused file yet, show a placeholder
+  // If there's no focused file yet, show an empty state
   if (!focusedDiffFile) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-2 text-muted-foreground">
-        <FileText className="h-8 w-8" />
-        <p className="text-sm">Select a file from the Changes panel to view</p>
+      <div className="flex h-full items-center justify-center p-6">
+        <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-muted-foreground/25 px-8 py-10 text-center">
+          <FileText className="h-8 w-8 text-muted-foreground/50" />
+          <p className="text-sm text-muted-foreground">
+            Select a file from the Changes panel to view its diff
+          </p>
+        </div>
       </div>
     );
   }
 
   const fileName = file ? (file.path.split("/").pop() ?? file.path) : "";
 
+  // Don't show file info in toolbar when the file has no local changes in uncommitted scope
+  const isFileVisibleInScope =
+    file &&
+    (diffScope === "branch" ||
+      file.stagingStatus === "unstaged" ||
+      file.stagingStatus === "partial");
+
   return (
     <div className="flex h-full flex-col">
       {/* Toolbar */}
       <div className="flex shrink-0 items-center justify-between border-b border-border px-4 py-2">
         <div className="flex min-w-0 items-center gap-2">
-          {file && (
+          {isFileVisibleInScope && (
             <>
               <span className="shrink-0 text-sm font-medium font-mono">
                 {fileName}
@@ -282,10 +297,18 @@ export function DiffTabView() {
               file.stagingStatus === "unstaged" ||
               file.stagingStatus === "partial";
 
-            // The effect above will auto-redirect to a file with changes;
-            // show nothing while that redirect is pending.
+            // The effect above will auto-redirect or clear; show empty state while pending.
             if (isLocalScope && !hasLocalChanges) {
-              return null;
+              return (
+                <div className="flex flex-1 items-center justify-center p-6">
+                  <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-muted-foreground/25 px-8 py-10 text-center">
+                    <FileText className="h-8 w-8 text-muted-foreground/50" />
+                    <p className="text-sm text-muted-foreground">
+                      No uncommitted changes to display
+                    </p>
+                  </div>
+                </div>
+              );
             }
 
             // In local scope, prefer the localDiff (uncommitted changes vs HEAD)

@@ -193,8 +193,14 @@ function DiffFileList({ files }: { files: DiffFile[] }) {
 
   if (filteredFiles.length === 0) {
     return (
-      <div className="px-3 py-6 text-center text-xs text-muted-foreground">
-        No file changes yet
+      <div className="flex flex-1 items-center justify-center p-4">
+        <div className="flex w-full flex-col items-center gap-1.5 rounded-lg border border-dashed border-muted-foreground/25 py-8 text-center">
+          <p className="text-xs text-muted-foreground">
+            {diffScope === "uncommitted"
+              ? "No uncommitted changes"
+              : "No file changes yet"}
+          </p>
+        </div>
       </div>
     );
   }
@@ -1392,8 +1398,12 @@ export function GitPanel(props: GitPanelProps) {
               {diffFiles && diffFiles.length > 0 ? (
                 <DiffFileList files={diffFiles} />
               ) : (
-                <div className="px-3 py-6 text-center text-xs text-muted-foreground">
-                  {hasDiff ? "Loading..." : "No file changes yet"}
+                <div className="flex flex-1 items-center justify-center p-4">
+                  <div className="flex w-full flex-col items-center gap-1.5 rounded-lg border border-dashed border-muted-foreground/25 py-8 text-center">
+                    <p className="text-xs text-muted-foreground">
+                      {hasDiff ? "Loading..." : "No file changes yet"}
+                    </p>
+                  </div>
                 </div>
               )}
             </div>
