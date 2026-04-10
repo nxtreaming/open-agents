@@ -78,7 +78,9 @@ export function ModelVariantsSectionSkeleton() {
   return (
     <div className="space-y-4">
       <div className="space-y-1.5">
-        <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Model Variants</h3>
+        <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          Model Variants
+        </h3>
         <p className="text-sm text-muted-foreground">
           Create named presets with provider-specific options for a base model.
         </p>
@@ -559,7 +561,9 @@ export function ModelVariantsSection() {
       <div className="space-y-4">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1.5">
-            <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Model Variants</h3>
+            <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              Model Variants
+            </h3>
             <p className="text-sm text-muted-foreground">
               Named presets that combine a base model with custom provider
               options. Variants appear alongside regular models in selectors

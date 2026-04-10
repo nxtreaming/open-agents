@@ -92,7 +92,9 @@ function MetricCard({
         {value}
       </div>
       {detail ? (
-        <div className="mt-0.5 font-mono text-xs tabular-nums text-muted-foreground/70">{detail}</div>
+        <div className="mt-0.5 font-mono text-xs tabular-nums text-muted-foreground/70">
+          {detail}
+        </div>
       ) : null}
     </div>
   );

@@ -372,7 +372,9 @@ export function PreferencesSection() {
               <Label htmlFor="sandbox">Default Sandbox</Label>
               <Select
                 value={preferences?.defaultSandboxType ?? DEFAULT_SANDBOX_TYPE}
-                onValueChange={(value) => handleSandboxChange(value as SandboxType)}
+                onValueChange={(value) =>
+                  handleSandboxChange(value as SandboxType)
+                }
                 disabled={isSaving}
               >
                 <SelectTrigger id="sandbox" className="w-full">
@@ -392,7 +394,9 @@ export function PreferencesSection() {
               <Label htmlFor="diff-mode">Default Diff Mode</Label>
               <Select
                 value={preferences?.defaultDiffMode ?? "unified"}
-                onValueChange={(value) => handleDiffModeChange(value as DiffMode)}
+                onValueChange={(value) =>
+                  handleDiffModeChange(value as DiffMode)
+                }
                 disabled={isSaving}
               >
                 <SelectTrigger id="diff-mode" className="w-full">
@@ -492,7 +496,9 @@ export function PreferencesSection() {
               }))}
               placeholder="Select a model"
               searchPlaceholder="Search models..."
-              emptyText={modelOptionsLoading ? "Loading..." : "No models found."}
+              emptyText={
+                modelOptionsLoading ? "Loading..." : "No models found."
+              }
               disabled={isSaving || modelOptionsLoading}
               onChange={handleModelChange}
             />
@@ -516,7 +522,9 @@ export function PreferencesSection() {
               ]}
               placeholder="Select a model"
               searchPlaceholder="Search models..."
-              emptyText={modelOptionsLoading ? "Loading..." : "No models found."}
+              emptyText={
+                modelOptionsLoading ? "Loading..." : "No models found."
+              }
               disabled={isSaving || modelOptionsLoading}
               onChange={handleSubagentModelChange}
             />

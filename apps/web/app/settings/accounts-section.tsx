@@ -382,7 +382,8 @@ function GitHubConnection({
             <span className="text-sm font-medium">GitHub</span>
             {hasGitHub && (
               <span className="text-xs text-muted-foreground">
-                · {installedCount} {installedCount === 1 ? "account" : "accounts"} configured
+                · {installedCount}{" "}
+                {installedCount === 1 ? "account" : "accounts"} configured
               </span>
             )}
           </div>

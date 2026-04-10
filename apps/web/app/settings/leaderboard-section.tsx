@@ -2,11 +2,7 @@
 
 import { useMemo, useState } from "react";
 import useSWR from "swr";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -73,7 +69,9 @@ export function LeaderboardSectionSkeleton() {
   return (
     <div className="space-y-4">
       <div className="space-y-1.5">
-        <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Internal leaderboard</h3>
+        <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          Internal leaderboard
+        </h3>
         <Skeleton className="h-4 w-64" />
       </div>
       <div className="space-y-3">
@@ -135,7 +133,9 @@ export function LeaderboardSection() {
     return (
       <div className="space-y-4">
         <div className="space-y-1.5">
-          <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Internal leaderboard</h3>
+          <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            Internal leaderboard
+          </h3>
         </div>
         <div>
           <p className="text-sm text-muted-foreground">
@@ -150,7 +150,9 @@ export function LeaderboardSection() {
     return (
       <div className="space-y-4">
         <div className="space-y-1.5">
-          <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Internal leaderboard</h3>
+          <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            Internal leaderboard
+          </h3>
         </div>
         <div>
           <p className="text-sm text-muted-foreground">
@@ -166,7 +168,9 @@ export function LeaderboardSection() {
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1.5">
-          <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Internal leaderboard</h3>
+          <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            Internal leaderboard
+          </h3>
           <p className="text-sm text-muted-foreground">
             Ranked by total tokens for users with @{leaderboard.domain}.
           </p>
@@ -215,10 +219,17 @@ export function LeaderboardSection() {
                         <div className="flex items-center gap-2.5 min-w-0">
                           <Avatar className="size-7 text-xs">
                             {row.avatarUrl && (
-                              <AvatarImage src={row.avatarUrl} alt={row.username} />
+                              <AvatarImage
+                                src={row.avatarUrl}
+                                alt={row.username}
+                              />
                             )}
                             <AvatarFallback>
-                              {(row.name?.trim()?.[0] ?? row.username[0] ?? "?").toUpperCase()}
+                              {(
+                                row.name?.trim()?.[0] ??
+                                row.username[0] ??
+                                "?"
+                              ).toUpperCase()}
                             </AvatarFallback>
                           </Avatar>
                           <div className="min-w-0">

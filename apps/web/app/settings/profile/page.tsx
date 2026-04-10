@@ -126,8 +126,7 @@ function aggregateByModel(rows: DailyUsageRow[]): ModelUsage[] {
     }
   }
   return [...map.values()].toSorted(
-    (a, b) =>
-      b.inputTokens + b.outputTokens - (a.inputTokens + a.outputTokens),
+    (a, b) => b.inputTokens + b.outputTokens - (a.inputTokens + a.outputTokens),
   );
 }
 
@@ -296,9 +295,7 @@ function ProfileSidebar({
 
       {/* Rank + Email */}
       <div className="space-y-1">
-        <p className="text-sm font-medium text-foreground">
-          #1 in Vercel
-        </p>
+        <p className="text-sm font-medium text-foreground">#1 in Vercel</p>
         {session.user.email && (
           <p className="truncate text-sm text-muted-foreground">
             {session.user.email}
@@ -313,16 +310,16 @@ function ProfileSidebar({
             Usage
           </h3>
           <div className="rounded-lg border border-border/50 bg-muted/10 px-4 py-1 divide-y divide-border/50">
-          <StatItem label="Total tokens" value={formatTokens(totalTokens)} />
-          <StatItem
-            label="Messages"
-            value={totals.messageCount.toLocaleString()}
-          />
-          <StatItem
-            label="Tool calls"
-            value={totals.toolCallCount.toLocaleString()}
-          />
-        </div>
+            <StatItem label="Total tokens" value={formatTokens(totalTokens)} />
+            <StatItem
+              label="Messages"
+              value={totals.messageCount.toLocaleString()}
+            />
+            <StatItem
+              label="Tool calls"
+              value={totals.toolCallCount.toLocaleString()}
+            />
+          </div>
         </div>
       )}
 
@@ -434,82 +431,84 @@ export default function ProfilePage() {
 
   return (
     <>
-    <h1 className="text-2xl font-semibold">Profile</h1>
-    <div className="flex flex-col gap-8 lg:flex-row lg:gap-10">
-      {/* Left sidebar */}
-      <div className="w-full shrink-0 lg:w-56">
-        <ProfileSidebar
-          totals={isLoading ? null : totals}
-          topRepos={isLoading ? null : topRepos}
-        />
-      </div>
-
-      {/* Right content */}
-      <div className="min-w-0 flex-1 space-y-8">
-        {/* Activity grid */}
-        <div>
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-medium text-muted-foreground">
-              Activity
-            </h2>
-            {dateRangeLabel && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="h-auto px-0 py-0 text-xs text-muted-foreground"
-                onClick={() => setDateRange(undefined)}
-              >
-                {dateRangeLabel} · Clear
-              </Button>
-            )}
-          </div>
-          {isLoading ? (
-            <Skeleton className="h-[96px] w-full rounded-md" />
-          ) : (
-            <ContributionChart
-              data={chartData}
-              selectedRange={dateRange}
-              onSelectRange={setDateRange}
-            />
-          )}
+      <h1 className="text-2xl font-semibold">Profile</h1>
+      <div className="flex flex-col gap-8 lg:flex-row lg:gap-10">
+        {/* Left sidebar */}
+        <div className="w-full shrink-0 lg:w-56">
+          <ProfileSidebar
+            totals={isLoading ? null : totals}
+            topRepos={isLoading ? null : topRepos}
+          />
         </div>
 
-        {/* Usage breakdown — ranked lists in a grid */}
-        {isLoading ? (
-          <div className="grid gap-6 sm:grid-cols-3">
-            <Skeleton className="h-28 rounded-xl" />
-            <Skeleton className="h-28 rounded-xl" />
-            <Skeleton className="h-28 rounded-xl" />
-          </div>
-        ) : error ? (
-          <p className="text-sm text-muted-foreground">
-            Failed to load usage data.
-          </p>
-        ) : (
-          <>
-            {(hasUsage || modelItems.length > 0 || codeChurnItems.length > 0) && (
-              <div className="grid gap-8 sm:grid-cols-3">
-                {hasUsage && (
-                  <RankedList title="Agent split" items={agentItems} />
-                )}
-                {modelItems.length > 0 && (
-                  <RankedList title="Top models" items={modelItems} />
-                )}
-                {codeChurnItems.length > 0 && (
-                  <RankedList title="Code churn" items={codeChurnItems} />
-                )}
-              </div>
+        {/* Right content */}
+        <div className="min-w-0 flex-1 space-y-8">
+          {/* Activity grid */}
+          <div>
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-sm font-medium text-muted-foreground">
+                Activity
+              </h2>
+              {dateRangeLabel && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-auto px-0 py-0 text-xs text-muted-foreground"
+                  onClick={() => setDateRange(undefined)}
+                >
+                  {dateRangeLabel} · Clear
+                </Button>
+              )}
+            </div>
+            {isLoading ? (
+              <Skeleton className="h-[96px] w-full rounded-md" />
+            ) : (
+              <ContributionChart
+                data={chartData}
+                selectedRange={dateRange}
+                onSelectRange={setDateRange}
+              />
             )}
+          </div>
 
-            {/* Insights */}
-            {data?.insights ? (
-              <UsageInsightsSection insights={data.insights} />
-            ) : null}
-          </>
-        )}
+          {/* Usage breakdown — ranked lists in a grid */}
+          {isLoading ? (
+            <div className="grid gap-6 sm:grid-cols-3">
+              <Skeleton className="h-28 rounded-xl" />
+              <Skeleton className="h-28 rounded-xl" />
+              <Skeleton className="h-28 rounded-xl" />
+            </div>
+          ) : error ? (
+            <p className="text-sm text-muted-foreground">
+              Failed to load usage data.
+            </p>
+          ) : (
+            <>
+              {(hasUsage ||
+                modelItems.length > 0 ||
+                codeChurnItems.length > 0) && (
+                <div className="grid gap-8 sm:grid-cols-3">
+                  {hasUsage && (
+                    <RankedList title="Agent split" items={agentItems} />
+                  )}
+                  {modelItems.length > 0 && (
+                    <RankedList title="Top models" items={modelItems} />
+                  )}
+                  {codeChurnItems.length > 0 && (
+                    <RankedList title="Code churn" items={codeChurnItems} />
+                  )}
+                </div>
+              )}
+
+              {/* Insights */}
+              {data?.insights ? (
+                <UsageInsightsSection insights={data.insights} />
+              ) : null}
+            </>
+          )}
+        </div>
       </div>
-    </div>
     </>
   );
 }
