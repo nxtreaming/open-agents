@@ -81,7 +81,7 @@ export async function performAutoCommit(
 
   // 6. Commit with Co-Authored-By trailer for the agent app
   const escapedMessage = commitMessage.replace(/'/g, "'\\''");
-  const coAuthorTrailer = getAppCoAuthorTrailer();
+  const coAuthorTrailer = await getAppCoAuthorTrailer();
   const trailerArg = coAuthorTrailer
     ? ` -m '${coAuthorTrailer.replace(/'/g, "'\\''")}'`
     : "";

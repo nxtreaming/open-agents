@@ -351,7 +351,7 @@ Respond with ONLY the commit message, nothing else.`,
     }
 
     const escapedMessage = commitMessage.replace(/'/g, "'\\''");
-    const coAuthorTrailer = getAppCoAuthorTrailer();
+    const coAuthorTrailer = await getAppCoAuthorTrailer();
     const trailerArg = coAuthorTrailer
       ? ` -m '${coAuthorTrailer.replace(/'/g, "'\\''")}'`
       : "";
